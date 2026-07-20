@@ -301,6 +301,16 @@ footer { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); f
 .filter-btn.active { background:var(--bg-dark); color:#fff; border-color:var(--bg-dark); }
 .filter-btn:hover:not(.active) { border-color:var(--blue); color:var(--text-dark); }
 
+.fit-controls { display:flex; flex-direction:column; gap:0.4rem; margin-bottom: 0.6rem; }
+.fit-label { font-family:'JetBrains Mono',monospace; font-size:0.68rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); }
+.fit-controls input[type="text"] { font-family:'Outfit',sans-serif; font-size:0.92rem; padding:0.7rem 1rem; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-white); color:var(--text-dark); margin-bottom:0.4rem; }
+.fit-controls input[type="text"]:focus { outline:none; border-color:var(--blue); }
+.fit-selects { display:flex; gap:0.9rem; flex-wrap:wrap; }
+.fit-select-group { display:flex; flex-direction:column; gap:0.3rem; flex:1; min-width:180px; }
+.fit-selects select { font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:600; padding:0.6rem 0.75rem; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-white); color:var(--text-dark); cursor:pointer; }
+.fit-selects select:focus { outline:none; border-color:var(--blue); }
+.fit-note { font-size:0.8rem; color:var(--text-muted); font-style:italic; margin-bottom:0.75rem; }
+.fit-count { font-size:0.8rem; color:var(--text-muted); margin-bottom:1.25rem; font-family:'JetBrains Mono',monospace; }
 .entry-item { background:var(--bg-white); border:1px solid var(--border); border-radius:14px; padding:1.25rem 1.5rem; margin-bottom:0.85rem; }
 .entry-item .ei-name { font-weight:700; font-size:0.98rem; margin-bottom:0.35rem; }
 .entry-item .ei-desc { font-size:0.9rem; color:var(--text-body); margin-bottom:0.5rem; }
@@ -533,9 +543,9 @@ footer { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); f
   <div class="heads-up"><strong>Did we miss one, or does something need fixing?</strong> This list is actively maintained. Message us on the <a href="javascript:void(0)" onclick="showPage('professionals', document.querySelectorAll('.topbar-tabs button')[6])">Contact us</a> page — additions need a link to a study, licensing board, or professional association, not a link to a single practitioner's site.</div>
 
   <div class="branch-opts">
-    <button onclick="document.getElementById('modalities-sec').scrollIntoView({behavior:'smooth'})">I want to understand therapy types<span class="bo-sub">Browse modalities — the "how" of therapy</span></button>
-    <button onclick="document.getElementById('specialties-sec').scrollIntoView({behavior:'smooth'})">I'm looking for a specific issue or specialty<span class="bo-sub">Browse specialties — the "what" therapy can address</span></button>
-    <button onclick="document.getElementById('directories-sec').scrollIntoView({behavior:'smooth'})">I want to actually search for someone<span class="bo-sub">Jump to directory sites</span></button>
+    <button onclick="setFitFilter('modality')">I want to understand therapy types<span class="bo-sub">Different techniques a therapist might use</span></button>
+    <button onclick="setFitFilter('specialty')">I'm looking for a specific focus area<span class="bo-sub">What a provider focuses on treating</span></button>
+    <button onclick="setFitFilter('directory')">I want to actually search for someone<span class="bo-sub">Directory sites, grouped by what they're best for</span></button>
   </div>
   <p class="branch-note">Every entry links to a professional or research body, not a private practice — so you can check the source yourself.</p>
 
@@ -545,19 +555,19 @@ footer { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); f
     <div id="quiz2-holder"></div>
   </div>
 
-  <h2 class="section-h" id="modalities-sec">Therapy modalities — the "how"</h2>
-  <p class="body">These describe the technique or framework a therapist uses, independent of what issue they're treating.</p>
-  <div class="filter-bar" id="modality-bar"></div>
-  <div id="modality-list"></div>
-
-  <h2 class="section-h" id="specialties-sec">Specialties — the "what"</h2>
-  <p class="body">What a provider focuses on treating.</p>
-  <div class="filter-bar" id="specialty-bar"></div>
-  <div id="specialty-list"></div>
-
-  <h2 class="section-h" id="directories-sec">Directories — the "where"</h2>
-  <p class="body">Search sites, grouped by what they're best for.</p>
-  <div id="directories-list"></div>
+  <h2 class="section-h" id="fit-sec">Search therapy types &amp; directories</h2>
+  <p class="body">One search across everything on this page: therapy techniques, the focus areas they address, and the sites where you can actually search for a provider. Type a keyword, or use the filter to narrow it down.</p>
+  <div class="fit-controls">
+    <label class="fit-label" for="fit-search">Search</label>
+    <input type="text" id="fit-search" placeholder="Search by keyword — e.g. &quot;grief&quot; or &quot;EMDR&quot;" oninput="renderFitList()">
+    <div class="fit-select-group">
+      <label class="fit-label" for="fit-filter">Filter</label>
+      <select id="fit-filter" onchange="renderFitList()"></select>
+    </div>
+  </div>
+  <p class="fit-note">The topic list is a starting point, not an exhaustive map — "International," especially, is a beginner touchpoint, not a full directory of what's available where you are.</p>
+  <div class="fit-count" id="fit-count"></div>
+  <div id="fit-list"></div>
 
   <a class="crosslink" href="javascript:void(0)" onclick="showPage('rights', document.querySelectorAll('.topbar-tabs button')[5])">Before you reach out — know your rights as a client →</a>
 </div>
@@ -941,40 +951,6 @@ const specialties = [
   { cat:"Life Stage & Transitions", name:"Workplace burnout", desc:"Addresses chronic occupational stress and burnout specifically, as distinct from general depression/anxiety.", src:"World Health Organization — Burnout (ICD-11 classification)", url:"https://www.who.int/news/item/28-05-2019-burn-out-an-occupational-phenomenon-international-classification-of-diseases" },
 ];
 
-function renderFilterBar(barId, cats, filterFn) {
-  const bar = document.getElementById(barId);
-  bar.innerHTML = cats.map((c,i) => `<button class="filter-btn ${i===0?'active':''}" onclick="${filterFn}('${c}', this)">${c}</button>`).join('');
-}
-
-function renderEntries(listId, items, filter) {
-  const list = document.getElementById(listId);
-  const use = filter === 'All' ? items : items.filter(m => m.cat === filter);
-  list.innerHTML = use.map(m => `
-    <div class="entry-item">
-      <div class="ei-cat">${m.cat}</div>
-      <div class="ei-name">${m.name}</div>
-      <div class="ei-desc">${m.desc}</div>
-      <div class="ei-src">Source: <a href="${m.url}" target="_blank" rel="noopener">${m.src}</a></div>
-    </div>
-  `).join('');
-}
-
-function filterModalities(cat, btn) {
-  document.querySelectorAll('#modality-bar .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderEntries('modality-list', modalities, cat);
-}
-function filterSpecialties(cat, btn) {
-  document.querySelectorAll('#specialty-bar .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderEntries('specialty-list', specialties, cat);
-}
-
-renderFilterBar('modality-bar', modalityCats, 'filterModalities');
-renderEntries('modality-list', modalities, 'All');
-renderFilterBar('specialty-bar', specialtyCats, 'filterSpecialties');
-renderEntries('specialty-list', specialties, 'All');
-
 // ═══ DIRECTORIES ═══
 const directoryGroups = [
   { group:"General-purpose directories", items:[
@@ -1025,17 +1001,126 @@ const directoryGroups = [
     { name:"SAMHSA Treatment Locator", url:"https://findtreatment.gov/", desc:"Federal government's treatment-facility locator for substance use and mental health." },
   ]},
   { group:"Teletherapy / insurance-matching platforms", items:[
-    { name:"Alma, Headway, Rula, Grow Therapy", url:"https://www.psychiatry.org/", desc:"Match clients to in-network clinicians by insurance — a different model than an open, independently searchable directory." },
-    { name:"BetterHelp, Talkspace", url:"https://www.samhsa.gov/", desc:"Subscription-based online-only therapy platforms." },
+    { name:"Alma", url:"https://helloalma.com/", desc:"Matches clients to in-network clinicians by insurance; strong for out-of-network/cash-pay claims specifically." },
+    { name:"Headway", url:"https://headway.co/", desc:"Matches clients to in-network clinicians by insurance, with broad commercial insurance and limited Medicare Advantage coverage." },
+    { name:"Rula", url:"https://www.rula.com/", desc:"Matches clients to in-network clinicians by insurance, including Employee Assistance Program (EAP) referrals." },
+    { name:"Grow Therapy", url:"https://growtherapy.com/", desc:"Matches clients to in-network clinicians by insurance, including Medicaid and Medicare in select states." },
+    { name:"BetterHelp", url:"https://www.betterhelp.com/", desc:"Subscription-based online-only therapy platform." },
+    { name:"Talkspace", url:"https://www.talkspace.com/", desc:"Subscription-based online-only therapy platform, also works with some insurance plans." },
+  ]},
+  { group:"International directories", items:[
+    { name:"Psychology Today — Country Selector", url:"https://www.psychologytoday.com/country-selector", desc:"Psychology Today's directory outside the US and Canada, organized by country." },
+    { name:"International Therapist Directory", url:"https://internationaltherapistdirectory.com/", desc:"Directory of therapists working internationally and across time zones." },
+    { name:"Location Independent Therapists", url:"https://locationindependenttherapists.com/", desc:"Directory geared toward expats, digital nomads, and people living outside their home country." },
+    { name:"Lifespan Integration — International Directory", url:"https://international-directory.lifespanintegration.com/", desc:"International directory of practitioners trained in Lifespan Integration, a trauma-focused modality." },
   ]},
 ];
 
-document.getElementById('directories-list').innerHTML = directoryGroups.map(g => `
-  <div class="dir-group">
-    <h3>${g.group}</h3>
-    ${g.items.map(it => `<div class="dir-item"><a href="${it.url}" target="_blank" rel="noopener">${it.name}</a><span class="di-desc">${it.desc}</span></div>`).join('')}
-  </div>
-`).join('');
+const directoryItems = directoryGroups.flatMap(g => g.items.map(it => ({
+  cat: g.group, name: it.name, desc: it.desc, url: it.url, type: 'directory'
+})));
+
+// ═══ COMBINED SEARCH: MODALITIES + SPECIALTIES + DIRECTORIES ═══
+const fitTypeLabels = { modality: "Therapy technique", specialty: "Focus area", directory: "Where to search" };
+const fitItems = [
+  ...modalities.map(m => ({ ...m, type:'modality' })),
+  ...specialties.map(s => ({ ...s, type:'specialty' })),
+  ...directoryItems,
+];
+
+// Plain-language topic filter — approximate keyword matching, meant as a beginner's
+// starting point rather than an exhaustive map (true especially of "International").
+const topicFilters = [
+  { key:"all", label:"All topics", kw:[] },
+  { key:"anxiety", label:"Anxiety", kw:["anxiety","panic","phobia","ocd"] },
+  { key:"depression", label:"Depression & mood", kw:["depress","mood","bipolar"] },
+  { key:"trauma", label:"Trauma & PTSD", kw:["trauma","ptsd"] },
+  { key:"cptsd", label:"Complex trauma (CPTSD)", kw:["complex ptsd","cptsd","attachment trauma","childhood trauma"] },
+  { key:"grief", label:"Grief & loss", kw:["grief","bereavement"] },
+  { key:"relationships", label:"Relationships & family", kw:["couples","marriage","family","relationship"] },
+  { key:"addiction", label:"Substance use & addiction", kw:["addiction","substance"] },
+  { key:"eating", label:"Eating disorders", kw:["eating disorder","body image","anad"] },
+  { key:"lgbtq", label:"LGBTQ+ & identity", kw:["lgbtq","gender-affirming","transgender","queer","kink","polyamor"] },
+  { key:"religious", label:"Religious trauma & high-control groups", kw:["religious trauma","spiritual abuse","cult","high-control"] },
+  { key:"responders", label:"First responders & military", kw:["first responder","military","veteran","police","fire","dispatch","ems"] },
+  { key:"sleep", label:"Sleep", kw:["sleep","insomnia"] },
+  { key:"adhd", label:"ADHD & neurodivergence", kw:["adhd","autis","neurodivergen"] },
+  { key:"general", label:"General / not sure where to start", kw:["general"] },
+  { key:"international", label:"International resources", kw:["international"] },
+];
+
+const typeFilters = [
+  { key:"modality", label:"Therapy techniques" },
+  { key:"specialty", label:"Focus areas" },
+  { key:"directory", label:"Where to search (sites)" },
+];
+
+function itemText(m) {
+  return `${m.cat} ${m.name} ${m.desc}`.toLowerCase();
+}
+
+// Whole-word matching only — plain substring matching caused real false positives during
+// testing (e.g. "panic" matching inside "Hispanic", "cult" inside "difficult", "ems" inside
+// "systems"/"problems", "anad" inside "Canada"), which risked implying associations that were
+// never intended, including ones that read as unintentional racial or ethnic labeling. A
+// keyword must start at a word boundary to count as a match.
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function keywordMatches(text, kw) {
+  return new RegExp('\\b' + escapeRegex(kw)).test(text);
+}
+
+function buildFitFilterOptions() {
+  const topicOpts = topicFilters.map(t => `<option value="topic:${t.key}">${t.label}</option>`).join('');
+  const typeOpts = typeFilters.map(t => `<option value="type:${t.key}">${t.label}</option>`).join('');
+  document.getElementById('fit-filter').innerHTML = `
+    <optgroup label="Browse by topic">${topicOpts}</optgroup>
+    <optgroup label="Browse by type">${typeOpts}</optgroup>
+  `;
+}
+
+function setFitFilter(type) {
+  document.getElementById('fit-filter').value = 'type:' + type;
+  document.getElementById('fit-search').value = '';
+  renderFitList();
+  document.getElementById('fit-sec').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderFitList() {
+  const [kind, key] = document.getElementById('fit-filter').value.split(':');
+  const q = document.getElementById('fit-search').value.trim().toLowerCase();
+
+  let items = fitItems;
+  if (kind === 'type') {
+    items = items.filter(i => i.type === key);
+  } else if (kind === 'topic' && key !== 'all') {
+    const topic = topicFilters.find(t => t.key === key);
+    if (topic) items = items.filter(i => topic.kw.some(k => keywordMatches(itemText(i), k)));
+  }
+  if (q) items = items.filter(i => itemText(i).includes(q));
+
+  document.getElementById('fit-count').textContent = `Showing ${items.length} of ${fitItems.length}`;
+  document.getElementById('fit-list').innerHTML = items.length ? items.map(m => {
+    if (m.type === 'directory') {
+      // No auto-generated category tag on directory entries — a resource shouldn't be
+      // reduced to an automated label, especially identity- or culture-specific ones.
+      return `
+        <div class="entry-item">
+          <div class="ei-name"><a href="${m.url}" target="_blank" rel="noopener">${m.name}</a></div>
+          <div class="ei-desc">${m.desc}</div>
+        </div>`;
+    }
+    return `
+      <div class="entry-item">
+        <div class="ei-cat">${m.cat} · ${fitTypeLabels[m.type]}</div>
+        <div class="ei-name">${m.name}</div>
+        <div class="ei-desc">${m.desc}</div>
+        <div class="ei-src">Source: <a href="${m.url}" target="_blank" rel="noopener">${m.src}</a></div>
+      </div>`;
+  }).join('') : `<p class="body">No matches — try a different keyword or filter.</p>`;
+}
+
+buildFitFilterOptions();
+renderFitList();
 
 // ═══ GOING IN INFORMED — RIGHTS / COUNTS / PROVIDERS / MYTHS ═══
 const rightsData = [
