@@ -630,6 +630,13 @@ footer { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); f
   <div class="cta-box" style="margin-top:1.25rem;">
     <h3>Reach out</h3>
     <p>Whether you're a licensed professional with a perspective to add, or you've spotted something worth fixing — one inbox reaches a real person. Messages sent here stay private unless you're explicitly submitting something for publication.</p>
+    <label for="role-select">I'm reaching out as: (optional)</label>
+    <select id="role-select" onchange="updateMailto()">
+      <option value="">Prefer not to say</option>
+      <option value="Licensed professional">A licensed professional with something to add</option>
+      <option value="General user">A general user — question, correction, or thought</option>
+      <option value="Other">Other</option>
+    </select>
     <label for="loc-select">Where are you writing from? (optional, helps us keep this global)</label>
     <select id="loc-select" onchange="updateMailto()">
       <option value="">Prefer not to say</option>
@@ -643,8 +650,8 @@ footer { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); f
       <option value="Latin America">Latin America</option>
       <option value="Other">Other</option>
     </select>
-    <a class="cta-link" id="contact-link" href="mailto:Ruvi.VitruMe@gmail.com?subject=Use It Wisely%20—%20Message&body=Writing%20from%3A%20%0A%0AMessage%3A%20%0A" style="margin-top:0.75rem;">Contact us →</a>
-    <p class="small">The location field is just a suggestion to fill in — it's never required to send a message.</p>
+    <a class="cta-link" id="contact-link" href="mailto:Ruvi.VitruMe@gmail.com?subject=Use It Wisely%20—%20Message&body=Writing%20as%3A%20%0AWriting%20from%3A%20%0A%0AMessage%3A%20%0A" style="margin-top:0.75rem;">Contact us →</a>
+    <p class="small">Both fields above are just suggestions to fill in — neither is ever required to send a message.</p>
   </div>
 </div>
 
@@ -684,8 +691,9 @@ function showPage(id, btn) {
 }
 
 function updateMailto() {
+  const role = document.getElementById('role-select').value;
   const loc = document.getElementById('loc-select').value;
-  const body = 'Writing%20from%3A%20' + encodeURIComponent(loc) + '%0A%0AMessage%3A%20%0A';
+  const body = 'Writing%20as%3A%20' + encodeURIComponent(role) + '%0AWriting%20from%3A%20' + encodeURIComponent(loc) + '%0A%0AMessage%3A%20%0A';
   document.getElementById('contact-link').href = 'mailto:Ruvi.VitruMe@gmail.com?subject=Use It Wisely%20—%20Message&body=' + body;
 }
 
